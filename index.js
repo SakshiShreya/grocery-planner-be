@@ -1,20 +1,16 @@
-const express = require("express");
-const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
-const app = express();
+dotenv.config({ path: "./config.env" });
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+const app = require("./app");
 
-app.get("/api/users", (req, res) => {
-  res.json({ a: "a", b: "b" });
-});
+// CONNECT MONGO
+const DB = process.env.DB;
+mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
-app.get("/api", (req, res) => {
-  res.json({ message: "User created successfully" });
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`App running on port ${PORT}...`);
 });
