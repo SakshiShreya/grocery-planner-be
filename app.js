@@ -1,7 +1,9 @@
-const express = require("express");
-const morgan = require("morgan");
-const compression = require("compression");
-const cors = require("cors");
+import express from "express";
+import morgan from "morgan";
+import compression from "compression";
+import cors from "cors";
+import ingredients from "./routes/ingredients.js";
+import globalErrorHandler from "./utils/globalErrorHandler.js";
 
 const app = express();
 
@@ -20,13 +22,15 @@ app.use(express.json());
 app.use(compression());
 
 // 6. Routes
-app.get("/api/users", (req, res) => {
-  res.json({ a: "a", b: "b" });
+app.use("/api/ingredients", ingredients);
+
+app.all("*", (req, res) => {
+  res.status(404).json({
+    message: `Can't find ${req.originalUrl} on this server!`
+  });
 });
 
-app.get("/api", (req, res) => {
-  res.json({ message: "User created successfully" });
-});
+app.use(globalErrorHandler);
 
 // EXPORT
-module.exports = app;
+export default app;

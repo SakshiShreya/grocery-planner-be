@@ -1,9 +1,9 @@
-const dotenv = require("dotenv");
-const mongoose = require("mongoose");
+import dotenv from "dotenv";
+import mongoose from "mongoose";
 
 dotenv.config({ path: "./config.env" });
 
-const app = require("./app");
+import app from "./app.js";
 
 // CONNECT MONGO
 const DB = process.env.DB;
