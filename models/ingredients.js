@@ -18,9 +18,35 @@ const ingredientsSchema = new mongoose.Schema(
       {
         category: {
           type: String,
+          enum: [
+            "Baked",
+            "Boiled",
+            "Chopped",
+            "Diced",
+            "Dried",
+            "Fermented",
+            "Fried",
+            "Frosted",
+            "Grated",
+            "Grilled",
+            "Ground",
+            "Kneaded",
+            "Marinated",
+            "Roasted",
+            "Sauteed",
+            "Shredded",
+            "Sliced",
+            "Smoked",
+            "Soaked",
+            "Steamed",
+            "Stir-fried",
+            "Stuffed",
+            "Toasted",
+            "Whipped"
+          ],
           required: [true, "Preparation should have a category"]
         },
-        timeAount: {
+        timeAmount: {
           type: Number,
           required: [true, "Preparation should have a time"]
         },
