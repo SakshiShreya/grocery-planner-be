@@ -23,8 +23,8 @@ export async function createIngredient(req, res) {
   try {
     const { body } = req;
     // TODO: Update createdBy and updatedBy
-    body.createdBy = "admin";
-    body.updatedBy = "admin";
+    body.createdBy = "Admin";
+    body.updatedBy = "Admin";
 
     const ingredient = await Ingredients.create(body);
 
