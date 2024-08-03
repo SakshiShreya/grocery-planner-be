@@ -19,7 +19,7 @@ export async function getIngredient(req, res, next) {
   }
 }
 
-export async function createIngredient(req, res) {
+export async function createIngredient(req, res, next) {
   try {
     const { body } = req;
     // TODO: Update createdBy and updatedBy
@@ -34,7 +34,7 @@ export async function createIngredient(req, res) {
   }
 }
 
-export async function updateIngredient(req, res) {
+export async function updateIngredient(req, res, next) {
   try {
     const { id } = req.params;
     const { body } = req;
@@ -47,7 +47,7 @@ export async function updateIngredient(req, res) {
   }
 }
 
-export async function deleteIngredient(req, res) {
+export async function deleteIngredient(req, res, next) {
   try {
     const { id } = req.params;
 
