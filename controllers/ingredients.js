@@ -2,7 +2,9 @@ import Ingredients from "../models/ingredients.js";
 
 export async function getAllIngredients(req, res, next) {
   try {
-    const ingredients = await Ingredients.find();
+    const ingredients = await Ingredients.find({
+      name: { $regex: req.query.q ?? "", $options: "i" },
+    });
     res.json({ data: ingredients });
   } catch (error) {
     next(error);
