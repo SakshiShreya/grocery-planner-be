@@ -2,10 +2,11 @@ import Ingredients from "../models/ingredients.js";
 
 export async function getAllIngredients(req, res, next) {
   try {
-    const ingredients = await Ingredients.find({
-      name: { $regex: req.query.q ?? "", $options: "i" },
-    });
-    res.json({ data: ingredients });
+    const { page = 1, limit = 10, q = "" } = req.query;
+    const findPromise = Ingredients.find({ name: { $regex: q, $options: "i" } }, {}, { skip: limit * (page - 1), limit });
+    const countPromise = Ingredients.countDocuments({ name: { $regex: q, $options: "i" } });
+    const [ingredients, count] = await Promise.all([findPromise, countPromise]);
+    res.json({ data: ingredients, count });
   } catch (error) {
     next(error);
   }
