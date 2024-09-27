@@ -3,8 +3,9 @@ import Ingredients from "../models/ingredients.js";
 export async function getAllIngredients(req, res, next) {
   try {
     const { page = 1, limit = 10, q = "" } = req.query;
-    const findPromise = Ingredients.find({ name: { $regex: q, $options: "i" } }, {}, { skip: limit * (page - 1), limit });
-    const countPromise = Ingredients.countDocuments({ name: { $regex: q, $options: "i" } });
+    const filter = { name: { $regex: q, $options: "i" } }
+    const findPromise = Ingredients.find(filter, {}, { skip: limit * (page - 1), limit });
+    const countPromise = Ingredients.countDocuments(filter);
     const [ingredients, count] = await Promise.all([findPromise, countPromise]);
     res.json({ data: ingredients, count });
   } catch (error) {
