@@ -2,8 +2,11 @@ import Ingredients from "../models/ingredients.js";
 
 export async function getAllIngredients(req, res, next) {
   try {
-    const ingredients = await Ingredients.find();
-    res.json({ data: ingredients });
+    const { page = 1, limit = 10 } = req.query;
+    const findPromise = Ingredients.find({}, {}, { skip: limit * (page - 1), limit });
+    const countPromise = Ingredients.countDocuments();
+    const [ingredients, count] = await Promise.all([findPromise, countPromise]);
+    res.json({ data: ingredients, count });
   } catch (error) {
     next(error);
   }
