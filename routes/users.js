@@ -16,20 +16,25 @@ router.post("/google", async (req, res) => {
       idToken: credential,
       audience: clientId
     });
-    const payload = ticket.getPayload();
+    const { email, given_name, family_name, picture } = ticket.getPayload();
 
-    let user = await Users.findOne({ email: payload.email });
+    let user = await Users.findOne({ email });
     if (!user) {
       user = await Users.create({
-        email: payload.email,
-        name: payload.name,
+        email,
+        fName: given_name,
+        lName: family_name,
+        picture,
         authSource: "google"
       });
     }
 
-    const token = jwt.sign({ user }, JWT_SECRET);
+    user = user.toJSON();
+    delete user.password;
+    delete user.__v;
 
-    res.status(200).json({ data: payload, jwt: token });
+    const token = jwt.sign({ user }, JWT_SECRET);
+    res.status(200).json({ data: user, jwt: token });
   } catch (e) {
     res.status(400).json({ msg: err });
   }

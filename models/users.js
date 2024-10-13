@@ -6,11 +6,13 @@ const usersSchema = new mongoose.Schema({
     required: [true, "User should have an email"],
     unique: [true, "User with this email already exists"]
   },
-  name: {
+  fName: {
     type: String,
-    required: [true, "User should have a name"]
+    required: [true, "User should have a first name"]
   },
+  lName: String,
   password: String,
+  picture: String,
   authSource: {
     type: String,
     enum: ["self", "google"],
