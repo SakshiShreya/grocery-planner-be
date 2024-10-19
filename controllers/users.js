@@ -14,7 +14,7 @@ export async function authenticateByGoogle(req, res, next) {
     });
     const { email, given_name, family_name, picture } = ticket.getPayload();
 
-    let user = await Users.findOne({ email });
+    let user = await Users.findOne({ email: { $eq: email } });
     if (!user) {
       user = await Users.create({
         email,
@@ -41,7 +41,7 @@ export async function signupByEmail(req, res, next) {
   const { JWT_SECRET } = process.env;
   const { email, password, firstName, lastName } = req.body;
   try {
-    let user = await Users.findOne({ email });
+    let user = await Users.findOne({ email: { $eq: email } });
     if (user) {
       const error = { statusCode: 400, message: "User already exists" };
       throw error;
