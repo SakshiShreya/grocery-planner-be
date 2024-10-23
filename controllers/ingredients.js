@@ -3,7 +3,7 @@ import Ingredients from "../models/ingredients.js";
 export async function getAllIngredients(req, res, next) {
   try {
     const { page = 1, limit = 10, q = "" } = req.query;
-    const filter = { name: { $regex: q, $options: "i" } }
+    const filter = { name: { $regex: q, $options: "i" } };
     const findPromise = Ingredients.find(filter, {}, { skip: limit * (page - 1), limit });
     const countPromise = Ingredients.countDocuments(filter);
     const [ingredients, count] = await Promise.all([findPromise, countPromise]);
@@ -43,7 +43,10 @@ export async function updateIngredient(req, res, next) {
     const { id } = req.params;
     const { body } = req;
 
-    const ingredient = await Ingredients.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+    const ingredient = await Ingredients.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
 
     res.json({ data: ingredient });
   } catch (error) {
