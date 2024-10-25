@@ -20,10 +20,10 @@ const dishesSchema = new mongoose.Schema(
     },
     ingredients: [
       {
-        ingredient: { type: mongoose.Schema.ObjectId, ref: "Ingredients" },
+        ingredient: { type: mongoose.Schema.ObjectId, ref: "Ingredients", required: [true, "Ingredient is required"] },
         measurement_unit: {
           type: String,
-          enum: ["cup", "tablespoon", "teaspoon", "g", "ml"],
+          enum: ["cup", "tablespoon", "teaspoon", "gm", "ml"],
           required: [true, "Ingredient should have a measurent unit."],
         },
         amount: {
@@ -37,7 +37,7 @@ const dishesSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 dishesSchema.index({ name: 1 });
