@@ -44,6 +44,12 @@ export async function authenticateByGoogle(req, res, next) {
 export async function signupByEmail(req, res, next) {
   const { JWT_SECRET } = process.env;
   const { email, password, firstName, lastName } = req.body;
+
+  if (typeof firstName !== "string" || typeof lastName !== "string") {
+    const error = { statusCode: 400, message: "Invalid input" };
+    throw error;
+  }
+
   try {
     let user = await Users.findOne({ email: { $eq: email } });
 
