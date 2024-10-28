@@ -15,8 +15,8 @@ const usersSchema = new mongoose.Schema({
   picture: String,
   authSource: {
     type: String,
-    enum: ["self", "google"],
-    default: "self"
+    enum: ["email", "nonEmail"],
+    default: "email"
   }
 });
 

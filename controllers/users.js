@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import Users from "../models/users.js";
@@ -21,7 +22,7 @@ export async function authenticateByGoogle(req, res, next) {
         fName: given_name,
         lName: family_name,
         picture,
-        authSource: "google"
+        authSource: "nonEmail"
       });
     }
 
@@ -42,12 +43,22 @@ export async function signupByEmail(req, res, next) {
   const { email, password, firstName, lastName } = req.body;
   try {
     let user = await Users.findOne({ email: { $eq: email } });
-    if (user) {
+
+    if (user && user.authSource === "email") {
       const error = { statusCode: 400, message: "User already exists" };
       throw error;
     }
 
-    user = await Users.create({ email, password, fName: firstName, lName: lastName, authSource: "self" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    if (user && user.authSource === "nonEmail") {
+      user = await Users.findByIdAndUpdate(
+        user._id,
+        { password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" },
+        { new: true }
+      );
+    } else {
+      user = await Users.create({ email, password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" });
+    }
 
     user = user.toJSON();
     delete user.password;
