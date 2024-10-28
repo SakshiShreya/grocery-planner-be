@@ -1,7 +1,10 @@
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import Users from "../models/users.js";
+
+dotenv.config({ path: "./config.env" });
 
 export async function authenticateByGoogle(req, res, next) {
   const client = new OAuth2Client();
