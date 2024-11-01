@@ -41,7 +41,7 @@ export async function createIngredient(req, res, next) {
 export async function updateIngredient(req, res, next) {
   try {
     const { id } = req.params;
-    const { body } = req;
+    const body = { $set: req.body };
 
     const ingredient = await Ingredients.findByIdAndUpdate(id, body, {
       new: true,
