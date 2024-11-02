@@ -98,7 +98,7 @@ export async function loginByEmail(req, res, next) {
   const { email, password } = req.body;
 
   try {
-    const user = await Users.findOne({ email: { $eq: email } });
+    let user = await Users.findOne({ email: { $eq: email } });
 
     if (user && user.authSource === "nonEmail") {
       const error = { statusCode: 400, message: "User exists with google account" };
