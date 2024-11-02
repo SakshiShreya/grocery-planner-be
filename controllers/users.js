@@ -27,6 +27,18 @@ export async function authenticateByGoogle(req, res, next) {
         picture,
         authSource: "nonEmail"
       });
+    } else {
+      // check what is missing and update user info
+      if (!user.fName) {
+        user.fName = given_name;
+      }
+      if (!user.lName) {
+        user.lName = family_name;
+      }
+      if (!user.picture) {
+        user.picture = picture;
+      }
+      user = await Users.findByIdAndUpdate(user._id, user)
     }
 
     user = user.toJSON();
