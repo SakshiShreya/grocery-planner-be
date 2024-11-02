@@ -48,7 +48,7 @@ export async function authenticateByGoogle(req, res, next) {
     const token = jwt.sign({ user }, JWT_SECRET);
     res.status(200).json({ data: user, jwt: token });
   } catch (e) {
-    const error = { statusCode: 401, message: e.message || e };
+    const error = { statusCode: 400, message: e.message || e };
     next(error);
   }
 }
@@ -88,7 +88,7 @@ export async function signupByEmail(req, res, next) {
     const token = jwt.sign({ user }, JWT_SECRET);
     res.status(201).json({ data: user, jwt: token });
   } catch (e) {
-    const error = { statusCode: e.statusCode || 401, message: e.message || e };
+    const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
   }
 }
@@ -118,7 +118,7 @@ export async function loginByEmail(req, res, next) {
     const token = jwt.sign({ user }, JWT_SECRET);
     res.status(200).json({ data: user, jwt: token });
   } catch (e) {
-    const error = { statusCode: e.statusCode || 401, message: e.message || e };
+    const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
   }
 }
