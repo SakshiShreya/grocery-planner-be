@@ -1,8 +1,9 @@
-import express from "express";
-import morgan from "morgan";
 import compression from "compression";
+import cookieParser from "cookie-parser";
 import cors from "cors";
+import express from "express";
 import rateLimit from "express-rate-limit";
+import morgan from "morgan";
 import ingredients from "./routes/ingredients.js";
 import users from "./routes/users.js";
 import globalErrorHandler from "./utils/globalErrorHandler.js";
@@ -30,6 +31,8 @@ app.use(
 
 // 4. Get body
 app.use(express.json());
+
+app.use(cookieParser());
 
 // 5. Compress api response
 app.use(compression());
