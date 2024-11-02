@@ -13,6 +13,6 @@ export default (err, req, res, next) => {
   }
 
   return res.status(err.statusCode).json({
-    msg: error.message
+    message: error.message
   });
 };

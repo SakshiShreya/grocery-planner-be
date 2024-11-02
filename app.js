@@ -22,7 +22,7 @@ app.use(
   rateLimit({
     windowMs: 10 * 60 * 1000, // 10 min
     max: 20,
-    message: { msg: "You are rate limited! Please try after 10 min." },
+    message: { message: "You are rate limited! Please try after 10 min." },
     standardHeaders: true,
     legacyHeaders: false
   })
