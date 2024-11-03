@@ -33,7 +33,7 @@ export async function createDish(req, res, next) {
 export async function updateDish(req, res, next) {
   try {
     const { id } = req.params;
-    const { body } = req;
+    const body = { $set: req.body };
 
     const dish = await Dishes.findByIdAndUpdate(id, body, {
       new: true,
