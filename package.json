@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/SakshiShreya/grocery-planner-be#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -31,6 +32,8 @@
     "eslint-plugin-node": "^11.1.0",
     "express": "^4.20.0",
     "express-rate-limit": "^7.4.0",
+    "google-auth-library": "^9.14.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.1",
     "morgan": "^1.10.0"
   },

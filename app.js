@@ -4,6 +4,7 @@ import compression from "compression";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import ingredients from "./routes/ingredients.js";
+import users from "./routes/users.js";
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 
 const app = express();
@@ -21,7 +22,7 @@ app.use(
   rateLimit({
     windowMs: 10 * 60 * 1000, // 10 min
     max: 20,
-    message: { msg: "You are rate limited! Please try after 10 min." },
+    message: { message: "You are rate limited! Please try after 10 min." },
     standardHeaders: true,
     legacyHeaders: false
   })
@@ -35,6 +36,7 @@ app.use(compression());
 
 // 6. Routes
 app.use("/api/ingredients", ingredients);
+app.use("/auth", users);
 
 app.all("*", (req, res) => {
   res.status(404).json({

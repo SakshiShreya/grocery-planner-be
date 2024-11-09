@@ -16,6 +16,7 @@
     "object-shorthand": "off",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
     "quotes": ["error", "double", { "allowTemplateLiterals": true }],
-    "spaced-comment": "off"
+    "spaced-comment": "off",
+    "import/extensions": "off",
   }
 }
