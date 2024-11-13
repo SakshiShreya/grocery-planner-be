@@ -38,7 +38,7 @@ export async function authenticateByGoogle(req, res, next) {
       if (!user.picture) {
         user.picture = picture;
       }
-      user = await Users.findByIdAndUpdate(user._id, user)
+      user = await Users.findByIdAndUpdate(user._id, user);
     }
 
     user = user.toJSON();
