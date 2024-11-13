@@ -7,11 +7,13 @@ const dishesSchema = new mongoose.Schema(
       required: [true, "Dish should have a name"],
     },
     createdBy: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
+      ref: "Users",
       required: [true, "Dish should have a creator"],
     },
     updatedBy: {
-      type: String,
+      type: mongoose.Schema.ObjectId,
+      ref: "Users",
       required: [true, "Dish should have a updater"],
     },
     recipe: {
