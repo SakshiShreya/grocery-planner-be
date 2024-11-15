@@ -45,10 +45,7 @@ export async function updateIngredient(req, res, next) {
     const { body, user } = req;
     body.updatedBy = user._id;
 
-    const ingredient = await Ingredients.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const ingredient = await Ingredients.findByIdAndUpdate(id, body, { new: true, runValidators: true });
 
     res.json({ data: ingredient });
   } catch (error) {

@@ -37,13 +37,12 @@ app.use(express.json());
 app.use(compression());
 
 // 6. Routes
-app.use("/api/ingredients", ingredients);
-app.use("/api/dishes", dishes);
 app.use("/auth", users);
 
 app.use(verifyToken);
 // private routes
 app.use("/api/ingredients", ingredients);
+app.use("/api/dishes", dishes);
 
 app.all("*", (req, res) => {
   res.status(404).json({
