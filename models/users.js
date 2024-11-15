@@ -5,11 +5,11 @@ const usersSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "User should have an email"],
-      unique: [true, "User with this email already exists"],
+      unique: [true, "User with this email already exists"]
     },
     fName: {
       type: String,
-      required: [true, "User should have a first name"],
+      required: [true, "User should have a first name"]
     },
     lName: String,
     password: String,
@@ -17,8 +17,8 @@ const usersSchema = new mongoose.Schema(
     authSource: {
       type: String,
       enum: ["email", "nonEmail"],
-      default: "email",
-    },
+      default: "email"
+    }
   },
   { toJSON: { virtuals: true } }
 );
