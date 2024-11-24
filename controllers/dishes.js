@@ -18,10 +18,9 @@ export async function getAllDishes(req, res, next) {
 
 export async function createDish(req, res, next) {
   try {
-    const { body } = req;
-    // TODO: Update createdBy and updatedBy
-    body.createdBy = "Admin";
-    body.updatedBy = "Admin";
+    const { body, user } = req;
+    body.createdBy = user._id;
+    body.updatedBy = user._id;
 
     const dish = await Dishes.create(body);
 
@@ -34,7 +33,8 @@ export async function createDish(req, res, next) {
 export async function updateDish(req, res, next) {
   try {
     const { id } = req.params;
-    const body = { $set: req.body };
+    const {body, user } = req;
+    body.updatedBy = user._id;
 
     const dish = await Dishes.findByIdAndUpdate(id, body, {
       new: true,
