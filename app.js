@@ -4,6 +4,7 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import ingredients from "./routes/ingredients.js";
+import dishes from "./routes/dishes.js";
 import users from "./routes/users.js";
 import globalErrorHandler from "./utils/globalErrorHandler.js";
 import verifyToken from "./utils/verifyToken.js";
@@ -41,6 +42,7 @@ app.use("/auth", users);
 app.use(verifyToken);
 // private routes
 app.use("/api/ingredients", ingredients);
+app.use("/api/dishes", dishes);
 
 app.all("*", (req, res) => {
   res.status(404).json({
