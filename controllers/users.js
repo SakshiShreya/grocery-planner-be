@@ -122,3 +122,25 @@ export async function loginByEmail(req, res, next) {
     next(error);
   }
 }
+
+export async function changePassword(req, res, next) {
+  const { currentPassword, newPassword } = req.body;
+  const { user } = req;
+
+  try {
+    const isCurrentPassEqual = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPassEqual) {
+      const error = { statusCode: 400, message: "Current password is wrong" };
+      throw error;
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    await Users.findByIdAndUpdate(user._id, { password: newHashedPassword });
+
+    const data = { message: "Password changed successfully" };
+    res.status(200).json({ data });
+  } catch (e) {
+    const error = { statusCode: e.statusCode || 400, message: e.message || e };
+    next(error);
+  }
+}
