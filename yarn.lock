@@ -483,10 +483,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bson@npm:^6.4.0, bson@npm:^6.5.0":
-  version: 6.6.0
-  resolution: "bson@npm:6.6.0"
-  checksum: 10c0/cb1690c6a72fbda88bc6af97540d5152d8f5c7ce3f004012b3dc8bfc3420a30af8aaf4eee47c731432ab7e470e288d078b0a339bdfe9cab1ebfc7c3bb3dcebc4
+"bson@npm:^6.7.0":
+  version: 6.10.0
+  resolution: "bson@npm:6.10.0"
+  checksum: 10c0/1447b08cc4910cc1d1b55642184fa13d06bc2b454280d09431082a8293b83854971821129d4925b22f5e2b49e08cdc1ac958a0193cfbad9efb2381ad3d86f242
   languageName: node
   linkType: hard
 
@@ -1744,7 +1744,7 @@ __metadata:
     express-rate-limit: "npm:^7.4.0"
     google-auth-library: "npm:^9.14.1"
     jsonwebtoken: "npm:^9.0.2"
-    mongoose: "npm:^8.3.1"
+    mongoose: "npm:^8.8.3"
     morgan: "npm:^1.10.0"
     nodemon: "npm:^3.1.4"
   languageName: unknown
@@ -2635,12 +2635,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:6.5.0":
-  version: 6.5.0
-  resolution: "mongodb@npm:6.5.0"
+"mongodb@npm:~6.10.0":
+  version: 6.10.0
+  resolution: "mongodb@npm:6.10.0"
   dependencies:
     "@mongodb-js/saslprep": "npm:^1.1.5"
-    bson: "npm:^6.4.0"
+    bson: "npm:^6.7.0"
     mongodb-connection-string-url: "npm:^3.0.0"
   peerDependencies:
     "@aws-sdk/credential-providers": ^3.188.0
@@ -2665,22 +2665,22 @@ __metadata:
       optional: true
     socks:
       optional: true
-  checksum: 10c0/d51f8673b76f073ef5d0101d96b1adc3ebacd63890771cb72ae245081415887a2e0b5a9451b18e370f930d63173f2af68fac98371487995ae921140756fe510b
+  checksum: 10c0/8a92b1a5f0a30b88b80d09a0718ecfb18a4a7f7e77c4b2a7047b57babfec6a29ece09dd375a4f528f0712f1282b39e27f194e75d89a3039fbfda4b1c4f7d3095
   languageName: node
   linkType: hard
 
-"mongoose@npm:^8.3.1":
-  version: 8.3.1
-  resolution: "mongoose@npm:8.3.1"
+"mongoose@npm:^8.8.3":
+  version: 8.8.3
+  resolution: "mongoose@npm:8.8.3"
   dependencies:
-    bson: "npm:^6.5.0"
+    bson: "npm:^6.7.0"
     kareem: "npm:2.6.3"
-    mongodb: "npm:6.5.0"
+    mongodb: "npm:~6.10.0"
     mpath: "npm:0.9.0"
     mquery: "npm:5.0.0"
     ms: "npm:2.1.3"
-    sift: "npm:16.0.1"
-  checksum: 10c0/22abcc6eb94f00a7778527d6769f36d0525462fda9b99407bb35cbc41362c102d53a541af2afcbcc44be9b22804b8ea1ece13c000c892d4b90908f1149691c6f
+    sift: "npm:17.1.3"
+  checksum: 10c0/e06f0680e7f3237545dae0123f5a0aa385427136f5ae655fe43f19ad5d2b5236bac21dbff1e16324524cf4f28d9c38114f3d51f48a371b638165139a1482f1e1
   languageName: node
   linkType: hard
 
@@ -3398,10 +3398,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sift@npm:16.0.1":
-  version: 16.0.1
-  resolution: "sift@npm:16.0.1"
-  checksum: 10c0/e3d1a68babf240c2b244687a12a32fa43439e8ec0b1bfa2a93bd0e21c50ed3364f935361a42f3fb850dc1c0fd369bc99bc0a6d15456141717ea29c60d9612289
+"sift@npm:17.1.3":
+  version: 17.1.3
+  resolution: "sift@npm:17.1.3"
+  checksum: 10c0/bb05d1d65cc9b549b402c1366ba1fcf685311808b6d5c2f4fa2f477d7b524218bbf6c99587562d5613d407820a6b5a7cad809f89c3f75c513ff5d8c0e0a0cead
   languageName: node
   linkType: hard
 
