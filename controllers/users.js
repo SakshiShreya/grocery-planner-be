@@ -105,8 +105,13 @@ export async function loginByEmail(req, res, next) {
       throw error;
     }
 
+    if (!user) {
+      const error = { statusCode: 401, message: "Invalid credentials" };
+      throw error;
+    }
+
     const isPassEqual = await bcrypt.compare(password, user.password);
-    if (!user || !isPassEqual) {
+    if (!isPassEqual) {
       const error = { statusCode: 401, message: "Invalid credentials" };
       throw error;
     }
