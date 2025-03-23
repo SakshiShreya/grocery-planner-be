@@ -143,7 +143,36 @@ export async function changePassword(req, res, next) {
     await Users.findByIdAndUpdate(user._id, { password: newHashedPassword });
 
     const data = { message: "Password changed successfully" };
-    res.status(200).json({ data });
+    res.status(200).json(data);
+  } catch (e) {
+    const error = { statusCode: e.statusCode || 400, message: e.message || e };
+    next(error);
+  }
+}
+
+export async function editUserDetails(req, res, next) {
+  const { firstName, lastName, oldEmail, email } = req.body;
+
+  if (typeof firstName !== "string" || typeof lastName !== "string") {
+    const error = { statusCode: 400, message: "Invalid input" };
+    throw error;
+  }
+
+  try {
+    let user = await Users.findOne({ email: { $eq: oldEmail } });
+    if (!user) {
+      const error = { statusCode: 401, message: "Invalid credentials" };
+      throw error;
+    }
+
+    user = await Users.findByIdAndUpdate(user._id, { fName: firstName, lName: lastName, email }, {new: true});
+
+    user = user.toJSON();
+    delete user.password;
+    delete user.__v;
+
+    const data = { message: "User details updated successfully", data: user };
+    res.status(200).json(data);
   } catch (e) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
