@@ -1,5 +1,11 @@
 import express from "express";
-import { createDish, getAllDishes, getDish, updateDish, deleteDish } from "../controllers/dishes.js";
+import {
+  createDish,
+  getAllDishes,
+  getDish,
+  updateDish,
+  deleteDish,
+} from "../controllers/dishes.js";
 
 const router = express.Router();
 
