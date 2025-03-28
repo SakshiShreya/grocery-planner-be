@@ -16,6 +16,16 @@ export async function getAllDishes(req, res, next) {
   }
 }
 
+export async function getDish(req, res, next) {
+  try {
+    const { id } = req.params;
+    const dish = await Dishes.findById(id);
+    res.json({ data: dish });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function createDish(req, res, next) {
   try {
     const { body, user } = req;
@@ -42,6 +52,16 @@ export async function updateDish(req, res, next) {
     });
 
     res.json({ data: dish });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteDish(req, res, next) {
+  try {
+    const { id } = req.params;
+    await Dishes.findByIdAndDelete(id);
+    res.status(204).json();
   } catch (error) {
     next(error);
   }
