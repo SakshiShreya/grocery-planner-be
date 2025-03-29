@@ -174,7 +174,7 @@ export async function editUserDetails(req, res, next) {
     if (firstName) updateData.fName = firstName;
     if (lastName) updateData.lName = lastName;
     if (email) updateData.email = email;
-    if (picture) updateData.picture = picture;
+    updateData.picture = picture; // optional field
 
     user = await Users.findByIdAndUpdate(user._id, { $set: updateData }, { new: true });
 
