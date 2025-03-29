@@ -151,9 +151,14 @@ export async function changePassword(req, res, next) {
 }
 
 export async function editUserDetails(req, res, next) {
-  const { firstName, lastName, oldEmail, email } = req.body;
+  const { firstName, lastName, oldEmail, email, picture } = req.body;
 
-  if (typeof firstName !== "string" || typeof lastName !== "string") {
+  if (
+    (firstName && typeof firstName !== "string") ||
+    (lastName && typeof lastName !== "string") ||
+    (email && typeof email !== "string") ||
+    (picture && typeof picture !== "string")
+  ) {
     const error = { statusCode: 400, message: "Invalid input" };
     throw error;
   }
@@ -165,7 +170,7 @@ export async function editUserDetails(req, res, next) {
       throw error;
     }
 
-    user = await Users.findByIdAndUpdate(user._id, { fName: firstName, lName: lastName, email }, {new: true});
+    user = await Users.findByIdAndUpdate(user._id, { fName: firstName, lName: lastName, email, picture }, { new: true });
 
     user = user.toJSON();
     delete user.password;
