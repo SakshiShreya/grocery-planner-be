@@ -170,7 +170,13 @@ export async function editUserDetails(req, res, next) {
       throw error;
     }
 
-    user = await Users.findByIdAndUpdate(user._id, { fName: firstName, lName: lastName, email, picture }, { new: true });
+    const updateData = {};
+    if (firstName) updateData.fName = firstName;
+    if (lastName) updateData.lName = lastName;
+    if (email) updateData.email = email;
+    if (picture) updateData.picture = picture;
+
+    user = await Users.findByIdAndUpdate(user._id, { $set: updateData }, { new: true });
 
     user = user.toJSON();
     delete user.password;
