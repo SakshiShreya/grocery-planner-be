@@ -31,7 +31,7 @@ app.use(
 );
 
 // 4. Get body
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 // 5. Compress api response
 app.use(compression());

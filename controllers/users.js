@@ -143,7 +143,47 @@ export async function changePassword(req, res, next) {
     await Users.findByIdAndUpdate(user._id, { password: newHashedPassword });
 
     const data = { message: "Password changed successfully" };
-    res.status(200).json({ data });
+    res.status(200).json(data);
+  } catch (e) {
+    const error = { statusCode: e.statusCode || 400, message: e.message || e };
+    next(error);
+  }
+}
+
+export async function editUserDetails(req, res, next) {
+  const { firstName, lastName, oldEmail, email, picture } = req.body;
+
+  if (
+    (firstName && typeof firstName !== "string") ||
+    (lastName && typeof lastName !== "string") ||
+    (email && typeof email !== "string") ||
+    (picture && typeof picture !== "string")
+  ) {
+    const error = { statusCode: 400, message: "Invalid input" };
+    throw error;
+  }
+
+  try {
+    let user = await Users.findOne({ email: { $eq: oldEmail } });
+    if (!user) {
+      const error = { statusCode: 401, message: "Invalid credentials" };
+      throw error;
+    }
+
+    const updateData = {};
+    if (firstName) updateData.fName = firstName;
+    if (lastName) updateData.lName = lastName;
+    if (email) updateData.email = email;
+    updateData.picture = picture; // optional field
+
+    user = await Users.findByIdAndUpdate(user._id, { $set: updateData }, { new: true });
+
+    user = user.toJSON();
+    delete user.password;
+    delete user.__v;
+
+    const data = { message: "User details updated successfully", data: user };
+    res.status(200).json(data);
   } catch (e) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
