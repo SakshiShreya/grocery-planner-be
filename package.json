@@ -25,22 +25,22 @@
   "homepage": "https://github.com/SakshiShreya/grocery-planner-be#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "compression": "^1.7.4",
+    "compression": "^1.8.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-node": "^11.1.0",
-    "express": "^4.20.0",
-    "express-rate-limit": "^7.4.0",
-    "google-auth-library": "^9.14.1",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5",
+    "mongoose": "^8.13.1",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
-    "eslint": "8.2.0",
-    "eslint-plugin-import": "^2.30.0",
-    "nodemon": "^3.1.4"
+    "eslint": "^9.23.0",
+    "eslint-plugin-import": "^2.31.0",
+    "nodemon": "^3.1.9"
   },
   "packageManager": "yarn@4.4.1"
 }
