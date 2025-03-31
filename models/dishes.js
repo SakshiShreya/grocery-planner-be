@@ -14,7 +14,7 @@ const dishesSchema = new mongoose.Schema(
     updatedBy: {
       type: mongoose.Schema.ObjectId,
       ref: "Users",
-      required: [true, "Dish should have a updater"],
+      required: [true, "Dish should have an updater"],
     },
     recipe: {
       type: String,

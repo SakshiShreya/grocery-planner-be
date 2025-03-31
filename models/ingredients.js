@@ -14,7 +14,7 @@ const ingredientsSchema = new mongoose.Schema(
     updatedBy: {
       type: mongoose.Schema.ObjectId,
       ref: "Users",
-      required: [true, "Ingredient should have a updater"]
+      required: [true, "Ingredient should have an updater"]
     },
     preparations: [
       {
