@@ -17,7 +17,19 @@ export async function getPlan(req, res, next) {
   try {
     const { id } = req.params;
     const plan = await Plans.findById(id);
-    res.json({ data: plan });
+    const planJSON = plan.toJSON();
+
+    const groupedByDay = planJSON.meals.reduce((acc, item) => {
+      const {day} = item;
+      if (!acc[day]) {
+        acc[day] = [];
+      }
+
+      acc[day].push(item);
+      return acc;
+    }, {});
+
+    res.json({ data: {...planJSON, meals: groupedByDay} });
   } catch (error) {
     next(error);
   }
@@ -32,6 +44,27 @@ export async function createPlan(req, res, next) {
     const plan = await Plans.create(body);
 
     res.status(201).json({ data: plan });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function createMeal(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { body, user } = req;
+
+    const planBody = {
+      updatedBy: user._id,
+      $push: { meals: body }
+    };
+
+    const plan = await Plans.findByIdAndUpdate(id, planBody, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.json({ data: plan });
   } catch (error) {
     next(error);
   }
