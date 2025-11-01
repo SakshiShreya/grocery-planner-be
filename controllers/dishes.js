@@ -4,7 +4,11 @@ export async function getAllDishes(req, res, next) {
   try {
     const { page = 1, limit = 10, q = "" } = req.query;
     const filter = { name: { $regex: q, $options: "i" } };
-    const findPromise = Dishes.find(filter, {}, { skip: limit * (page - 1), limit })
+    const findPromise = Dishes.find(
+      filter,
+      {},
+      { skip: limit * (page - 1), limit }
+    )
       .populate("ingredients.ingredient")
       .populate("createdBy", "name fName lName")
       .populate("updatedBy", "name fName lName");
@@ -33,7 +37,7 @@ export async function createDish(req, res, next) {
 export async function updateDish(req, res, next) {
   try {
     const { id } = req.params;
-    const {body, user } = req;
+    const { body, user } = req;
     body.updatedBy = user._id;
 
     const dish = await Dishes.findByIdAndUpdate(id, body, {
@@ -42,6 +46,16 @@ export async function updateDish(req, res, next) {
     });
 
     res.json({ data: dish });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteDish(req, res, next) {
+  try {
+    const { id } = req.params;
+    await Dishes.findByIdAndDelete(id);
+    res.status(204).json();
   } catch (error) {
     next(error);
   }
