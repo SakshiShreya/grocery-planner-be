@@ -43,6 +43,7 @@ export async function authenticateByGoogle(req, res, next) {
 
     user = user.toJSON();
     delete user.password;
+    delete user.picture; // picture can be a very big string which can make jwt very big
     delete user.__v;
 
     const token = jwt.sign({ user }, JWT_SECRET);
