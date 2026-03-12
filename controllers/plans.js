@@ -4,7 +4,11 @@ export async function getAllPlans(req, res, next) {
   try {
     const { page = 1, limit = 10, q = "" } = req.query;
     const filter = { name: { $regex: q, $options: "i" } };
-    const findPromise = Plans.find(filter, {}, { skip: limit * (page - 1), limit });
+    const findPromise = Plans.find(
+      filter,
+      {},
+      { skip: limit * (page - 1), limit },
+    );
     const countPromise = Plans.countDocuments(filter);
     const [plans, count] = await Promise.all([findPromise, countPromise]);
     res.json({ data: plans, count });
@@ -16,11 +20,14 @@ export async function getAllPlans(req, res, next) {
 export async function getPlan(req, res, next) {
   try {
     const { id } = req.params;
-    const plan = await Plans.findById(id);
+    const plan = await Plans.findById(id).populate({
+      path: "meals.dishes.dish",
+      select: "name",
+    });
     const planJSON = plan.toJSON();
 
     const groupedByDay = planJSON.meals.reduce((acc, item) => {
-      const {day} = item;
+      const { day } = item;
       if (!acc[day]) {
         acc[day] = [];
       }
@@ -29,7 +36,7 @@ export async function getPlan(req, res, next) {
       return acc;
     }, {});
 
-    res.json({ data: {...planJSON, meals: groupedByDay} });
+    res.json({ data: { ...planJSON, meals: groupedByDay } });
   } catch (error) {
     next(error);
   }
@@ -56,7 +63,7 @@ export async function createMeal(req, res, next) {
 
     const planBody = {
       updatedBy: user._id,
-      $push: { meals: body }
+      $push: { meals: body },
     };
 
     const plan = await Plans.findByIdAndUpdate(id, planBody, {
