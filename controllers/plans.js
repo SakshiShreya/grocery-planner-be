@@ -8,7 +8,7 @@ export async function getAllPlans(req, res, next) {
       filter,
       {},
       { skip: limit * (page - 1), limit },
-    );
+    ).populate("updatedBy", "name fName lName");
     const countPromise = Plans.countDocuments(filter);
     const [plans, count] = await Promise.all([findPromise, countPromise]);
     res.json({ data: plans, count });
