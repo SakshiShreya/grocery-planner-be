@@ -56,6 +56,18 @@ export async function createPlan(req, res, next) {
   }
 }
 
+export async function deletePlan(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    await Plans.findByIdAndDelete(id);
+
+    res.status(204).json();
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function createMeal(req, res, next) {
   try {
     const { id } = req.params;
