@@ -125,9 +125,8 @@ export async function loginByEmail(req, res, next) {
   }
 }
 
-export async function getUserDetails(req, res, next) {
-  const { id } = req.params;
-  let user = await Users.findById(id);
+export async function whoami(req, res, next) {
+  let { user } = req;
 
   user = user.toJSON();
   delete user.__v;

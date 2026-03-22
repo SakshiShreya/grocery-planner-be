@@ -1,5 +1,12 @@
 import express from "express";
-import { authenticateByGoogle, changePassword, editUserDetails, getUserDetails, loginByEmail, signupByEmail } from "../controllers/users.js";
+import {
+    authenticateByGoogle,
+    changePassword,
+    editUserDetails,
+    loginByEmail,
+    signupByEmail,
+    whoami,
+} from "../controllers/users.js";
 import verifyToken from "../utils/verifyToken.js";
 
 const router = express.Router();
@@ -12,6 +19,6 @@ router.route("/login").post(loginByEmail);
 router.use(verifyToken);
 router.route("/change-password").post(changePassword);
 router.route("/edit").put(editUserDetails);
-router.route("/:id").get(getUserDetails);
+router.route("/whoami").get(whoami);
 
 export default router;
