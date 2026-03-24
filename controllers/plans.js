@@ -56,34 +56,36 @@ export async function createPlan(req, res, next) {
   }
 }
 
-export async function deletePlan(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    await Plans.findByIdAndDelete(id);
-
-    res.status(204).json();
-  } catch (error) {
-    next(error);
-  }
-}
-
-export async function createMeal(req, res, next) {
+export async function updateMeal(req, res, next) {
   try {
     const { id } = req.params;
     const { body, user } = req;
+    const { day, mealType, dishes } = body;
 
-    const planBody = {
-      updatedBy: user._id,
-      $push: { meals: body },
-    };
+    // Try to update existing meal with matching day + mealType
+    const updatedPlan = await Plans.findOneAndUpdate(
+      { _id: id, "meals.day": day, "meals.mealType": mealType },
+      {
+        updatedBy: user._id,
+        $set: { "meals.$.dishes": dishes },
+      },
+      { new: true, runValidators: true }
+    );
 
-    const plan = await Plans.findByIdAndUpdate(id, planBody, {
-      new: true,
-      runValidators: true,
-    });
+    // If no matching meal found, push a new one
+    if (!updatedPlan) {
+      const plan = await Plans.findByIdAndUpdate(
+        id,
+        {
+          updatedBy: user._id,
+          $push: { meals: body },
+        },
+        { new: true, runValidators: true }
+      );
+      return res.json({ data: plan });
+    }
 
-    res.json({ data: plan });
+    res.json({ data: updatedPlan });
   } catch (error) {
     next(error);
   }
