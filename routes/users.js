@@ -1,11 +1,11 @@
 import express from "express";
 import {
-    authenticateByGoogle,
-    changePassword,
-    editUserDetails,
-    loginByEmail,
-    signupByEmail,
-    whoami,
+  authenticateByGoogle,
+  changePassword,
+  editUserDetails,
+  loginByEmail,
+  signupByEmail,
+  whoami,
 } from "../controllers/users.js";
 import verifyToken from "../utils/verifyToken.js";
 

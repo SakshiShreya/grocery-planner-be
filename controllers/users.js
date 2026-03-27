@@ -128,9 +128,15 @@ export async function loginByEmail(req, res, next) {
 export async function whoami(req, res, next) {
   let { user } = req;
 
-  user = user.toJSON();
-  delete user.__v;
-  delete user.password;
+  user = {
+    _id: user._id,
+    authSource: user.authSource,
+    email: user.email,
+    fName: user.fName,
+    lName: user.lName,
+    name: user.name,
+    picture: user.picture
+  }
   res.status(200).json({ data: user });
 }
 
