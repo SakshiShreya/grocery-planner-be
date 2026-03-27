@@ -6,15 +6,29 @@ import Users from "../models/users.js";
 
 dotenv.config({ path: "./config.env" });
 
+function sendUserLoginDetails(user, res) {
+  const { JWT_SECRET } = process.env;
+  const userData = {
+    _id: user._id,
+    authSource: user.authSource,
+    email: user.email,
+    fName: user.fName,
+    lName: user.lName,
+    name: user.name,
+  };
+
+  const token = jwt.sign({ user: userData }, JWT_SECRET);
+  res.status(200).json({ data: userData, jwt: token });
+}
+
 export async function authenticateByGoogle(req, res, next) {
   const client = new OAuth2Client();
-  const { JWT_SECRET } = process.env;
-
   const { credential, clientId } = req.body;
+
   try {
     const ticket = await client.verifyIdToken({
       idToken: credential,
-      audience: clientId
+      audience: clientId,
     });
     const { email, given_name, family_name, picture } = ticket.getPayload();
 
@@ -25,7 +39,7 @@ export async function authenticateByGoogle(req, res, next) {
         fName: given_name,
         lName: family_name,
         picture,
-        authSource: "nonEmail"
+        authSource: "nonEmail",
       });
     } else {
       // check what is missing and update user info
@@ -41,13 +55,7 @@ export async function authenticateByGoogle(req, res, next) {
       user = await Users.findByIdAndUpdate(user._id, user);
     }
 
-    user = user.toJSON();
-    delete user.password;
-    delete user.picture; // picture can be a very big string which can make jwt very big
-    delete user.__v;
-
-    const token = jwt.sign({ user }, JWT_SECRET);
-    res.status(200).json({ data: user, jwt: token });
+    sendUserLoginDetails(user, res);
   } catch (e) {
     const error = { statusCode: 400, message: e.message || e };
     next(error);
@@ -55,7 +63,6 @@ export async function authenticateByGoogle(req, res, next) {
 }
 
 export async function signupByEmail(req, res, next) {
-  const { JWT_SECRET } = process.env;
   const { email, password, firstName, lastName } = req.body;
 
   if (typeof firstName !== "string" || typeof lastName !== "string") {
@@ -76,18 +83,13 @@ export async function signupByEmail(req, res, next) {
       user = await Users.findByIdAndUpdate(
         user._id,
         { password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" },
-        { new: true }
+        { new: true },
       );
     } else {
       user = await Users.create({ email, password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" });
     }
 
-    user = user.toJSON();
-    delete user.password;
-    delete user.__v;
-
-    const token = jwt.sign({ user }, JWT_SECRET);
-    res.status(201).json({ data: user, jwt: token });
+    sendUserLoginDetails(user, res);
   } catch (e) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
@@ -95,7 +97,6 @@ export async function signupByEmail(req, res, next) {
 }
 
 export async function loginByEmail(req, res, next) {
-  const { JWT_SECRET } = process.env;
   const { email, password } = req.body;
 
   try {
@@ -117,16 +118,26 @@ export async function loginByEmail(req, res, next) {
       throw error;
     }
 
-    user = user.toJSON();
-    delete user.password;
-    delete user.__v;
-
-    const token = jwt.sign({ user }, JWT_SECRET);
-    res.status(200).json({ data: user, jwt: token });
+    sendUserLoginDetails(user, res);
   } catch (e) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
   }
+}
+
+export async function whoami(req, res, next) {
+  let { user } = req;
+
+  user = {
+    _id: user._id,
+    authSource: user.authSource,
+    email: user.email,
+    fName: user.fName,
+    lName: user.lName,
+    name: user.name,
+    picture: user.picture
+  }
+  res.status(200).json({ data: user });
 }
 
 export async function changePassword(req, res, next) {
