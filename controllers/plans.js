@@ -56,6 +56,20 @@ export async function createPlan(req, res, next) {
   }
 }
 
+export async function updatePlan(req, res, next) {
+   try {
+    const { id } = req.params;
+    const { body, user } = req;
+    body.updatedBy = user._id;
+
+    const ingredient = await Plans.findByIdAndUpdate(id, body, { new: true, runValidators: true });
+
+    res.json({ data: ingredient });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function deletePlan(req, res, next) {
   try {
     const { id } = req.params;
