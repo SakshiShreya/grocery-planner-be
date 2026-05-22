@@ -81,7 +81,7 @@ export async function updateMeal(req, res, next) {
         updatedBy: user._id,
         $set: { "meals.$.dishes": dishes },
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     // If no matching meal found, push a new one
@@ -92,12 +92,28 @@ export async function updateMeal(req, res, next) {
           updatedBy: user._id,
           $push: { meals: body },
         },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
       return res.json({ data: plan });
     }
 
     res.json({ data: updatedPlan });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function deleteMeal(req, res, next) {
+  try {
+    const { id, mealId } = req.params;
+
+    await Plans.findByIdAndUpdate(id, {
+      $pull: {
+        meals: { _id: mealId },
+      },
+    });
+
+    res.status(204).json();
   } catch (error) {
     next(error);
   }
