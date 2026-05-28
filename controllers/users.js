@@ -8,6 +8,15 @@ dotenv.config({ path: "./config.env" });
 
 function sendUserLoginDetails(user, res) {
   const { JWT_SECRET } = process.env;
+  const currentPlan =
+    user.currentPlan && user.currentPlan.plan
+      ? {
+          plan: user.currentPlan.plan,
+          weeks: user.currentPlan.weeks,
+          startedAt: user.currentPlan.startedAt,
+          endsAt: user.currentPlan.endsAt,
+        }
+      : null;
   const userData = {
     _id: user._id,
     authSource: user.authSource,
@@ -15,6 +24,8 @@ function sendUserLoginDetails(user, res) {
     fName: user.fName,
     lName: user.lName,
     name: user.name,
+    picture: user.picture,
+    currentPlan,
   };
 
   const token = jwt.sign({ user: userData }, JWT_SECRET);
@@ -126,18 +137,31 @@ export async function loginByEmail(req, res, next) {
 }
 
 export async function whoami(req, res, next) {
-  let { user } = req;
+  try {
+    const user = await Users.findById(req.user._id).populate("currentPlan.plan", "name");
 
-  user = {
-    _id: user._id,
-    authSource: user.authSource,
-    email: user.email,
-    fName: user.fName,
-    lName: user.lName,
-    name: user.name,
-    picture: user.picture
+    const userData = {
+      _id: user._id,
+      authSource: user.authSource,
+      email: user.email,
+      fName: user.fName,
+      lName: user.lName,
+      name: user.name,
+      picture: user.picture,
+      currentPlan: user.currentPlan?.plan
+        ? {
+            plan: user.currentPlan.plan,
+            weeks: user.currentPlan.weeks,
+            startedAt: user.currentPlan.startedAt,
+            endsAt: user.currentPlan.endsAt,
+          }
+        : null,
+    };
+
+    res.status(200).json({ data: userData });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({ data: user });
 }
 
 export async function changePassword(req, res, next) {
