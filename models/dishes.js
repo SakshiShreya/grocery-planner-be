@@ -25,12 +25,21 @@ const dishesSchema = new mongoose.Schema(
         measurement_unit: {
           type: String,
           enum: ["cup", "tablespoon", "teaspoon", "gm", "ml", "number"],
-          required: [true, "Ingredient should have a measurent unit."],
+          required: [true, "Ingredient should have a measurement unit."],
         },
         amount: {
           type: Number,
           required: [true, "Ingredient should have an amount."],
         },
+        to: {
+          type: Number,
+          validate: {
+            validator: function (value) {
+              return value == null || value > this.amount;
+            },
+            message: "'to' should be greater than 'amount'.",
+          },
+        }
       },
     ],
     isPrivate: {
