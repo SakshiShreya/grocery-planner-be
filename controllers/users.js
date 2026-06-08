@@ -8,15 +8,6 @@ dotenv.config({ path: "./config.env" });
 
 function sendUserLoginDetails(user, res) {
   const { JWT_SECRET } = process.env;
-  const currentPlan =
-    user.currentPlan && user.currentPlan.plan
-      ? {
-          plan: user.currentPlan.plan,
-          weeks: user.currentPlan.weeks,
-          startedAt: user.currentPlan.startedAt,
-          endsAt: user.currentPlan.endsAt,
-        }
-      : null;
   const userData = {
     _id: user._id,
     authSource: user.authSource,
@@ -24,8 +15,6 @@ function sendUserLoginDetails(user, res) {
     fName: user.fName,
     lName: user.lName,
     name: user.name,
-    picture: user.picture,
-    currentPlan,
   };
 
   const token = jwt.sign({ user: userData }, JWT_SECRET);
@@ -97,7 +86,13 @@ export async function signupByEmail(req, res, next) {
         { new: true },
       );
     } else {
-      user = await Users.create({ email, password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" });
+      user = await Users.create({
+        email,
+        password: hashedPassword,
+        fName: firstName,
+        lName: lastName,
+        authSource: "email",
+      });
     }
 
     sendUserLoginDetails(user, res);

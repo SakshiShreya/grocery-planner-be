@@ -71,15 +71,26 @@ export async function deletePlan(req, res, next) {
 export async function startPlan(req, res, next) {
   try {
     const { id } = req.params;
-    const { weeks } = req.body;
+    const {
+      range: { start, end },
+    } = req.body;
     const { user } = req;
 
-    if (weeks == null) {
-      throw { statusCode: 400, message: "Plan duration (weeks) is required" };
+    const startDate = new Date(start);
+    const startTime = startDate.getTime();
+    const endDate = new Date(end);
+    const endTime = endDate.getTime();
+
+    if (Number.isNaN(startTime) || Number.isNaN(endTime)) {
+      throw { statusCode: 400, message: "Invalid start or end dates" };
     }
 
-    if (!Number.isInteger(weeks)) {
-      throw { statusCode: 400, message: "Plan duration must be a whole number of weeks" };
+    if (startTime >= endTime) {
+      throw { statusCode: 400, message: "Start date must come before the end date" };
+    }
+
+    if (endTime <= new Date().getTime()) {
+      throw { statusCode: 400, message: "Plan's end date must be after today" };
     }
 
     const plan = await Plans.findById(id).select("_id name isPrivate createdBy");
@@ -91,28 +102,49 @@ export async function startPlan(req, res, next) {
       throw { statusCode: 403, message: "You don't have permission to start this plan" };
     }
 
-    const startedAt = new Date();
-    const endsAt = new Date(startedAt.getTime() + weeks * 7 * 24 * 60 * 60 * 1000);
-
     await Users.findByIdAndUpdate(
       user._id,
       {
         currentPlan: {
           plan: plan._id,
-          weeks,
-          startedAt,
-          endsAt,
+          startedAt: startDate,
+          endsAt: endDate,
         },
       },
       { new: true, runValidators: true },
     );
 
-    const updatedUser = await Users.findById(user._id).populate("currentPlan.plan", "name");
-    const userData = updatedUser.toJSON();
-    delete userData.password;
-    delete userData.__v;
+    res.json({ message: "Plan has been started", plan: { _id: plan._id, name: plan.name } });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    res.json({ data: userData });
+export async function stopPlan(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { user } = req;
+
+    const plan = await Plans.findById(id).select("_id name isPrivate createdBy");
+    if (!plan) {
+      throw { statusCode: 404, message: "Plan not found" };
+    }
+
+    if (!user.currentPlan) {
+      throw { statusCode: 400, message: "You don't have an active plan" };
+    }
+
+    if (user.currentPlan.plan.toString() !== plan._id.toString()) {
+      throw { statusCode: 400, message: "You don't have that plan started" };
+    }
+
+    await Users.findByIdAndUpdate(user._id, {
+      $unset: {
+        currentPlan: true,
+      },
+    });
+
+    res.json({ message: "Plan has been stopped", plan: { _id: plan._id, name: plan.name } });
   } catch (error) {
     next(error);
   }
