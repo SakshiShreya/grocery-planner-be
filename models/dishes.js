@@ -28,8 +28,7 @@ const dishesSchema = new mongoose.Schema(
         },
         measurement_unit: {
           type: String,
-          enum: ["cup", "tablespoon", "teaspoon", "gm", "ml", "number"],
-          required: [true, "Ingredient should have a measurement unit."],
+          enum: ["", "cup", "tablespoon", "teaspoon", "gm", "ml"],
         },
         amount: {
           type: Number,
