@@ -21,15 +21,30 @@ const dishesSchema = new mongoose.Schema(
     },
     ingredients: [
       {
-        ingredient: { type: mongoose.Schema.ObjectId, ref: "Ingredients", required: [true, "Ingredient is required"] },
+        ingredient: {
+          type: mongoose.Schema.ObjectId,
+          ref: "Ingredients",
+          required: [true, "Ingredient is required"],
+        },
         measurement_unit: {
           type: String,
-          enum: ["cup", "tablespoon", "teaspoon", "gm", "ml"],
-          required: [true, "Ingredient should have a measurent unit."],
+          enum: ["", "cup", "tablespoon", "teaspoon", "gm", "ml"],
         },
         amount: {
           type: Number,
           required: [true, "Ingredient should have an amount."],
+        },
+        to: {
+          type: Number,
+          validate: {
+            validator: function (value) {
+              return value == null || value > this.amount;
+            },
+            message: "'to' should be greater than 'amount'.",
+          },
+        },
+        isOptional: {
+          type: Boolean,
         },
       },
     ],

@@ -24,7 +24,7 @@ app.use(cors());
 app.use(
   rateLimit({
     windowMs: 10 * 60 * 1000, // 10 min
-    max: 20,
+    max: 50,
     message: { message: "You are rate limited! Please try after 10 min." },
     standardHeaders: true,
     legacyHeaders: false
