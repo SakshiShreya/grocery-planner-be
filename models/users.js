@@ -1,26 +1,46 @@
 import mongoose from "mongoose";
 
+const scheduledPlanSchema = new mongoose.Schema({
+  plan: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Plans",
+    required: true,
+  },
+  startedAt: {
+    type: Date,
+    required: true,
+  },
+  endsAt: {
+    type: Date,
+    required: true,
+  },
+});
+
 const usersSchema = new mongoose.Schema(
   {
     email: {
       type: String,
       required: [true, "User should have an email"],
-      unique: [true, "User with this email already exists"]
+      unique: [true, "User with this email already exists"],
     },
     fName: {
       type: String,
-      required: [true, "User should have a first name"]
+      required: [true, "User should have a first name"],
     },
     lName: String,
     password: String,
     picture: String,
+    scheduledPlans: {
+      type: [scheduledPlanSchema],
+      default: [],
+    },
     authSource: {
       type: String,
       enum: ["email", "nonEmail"],
-      default: "email"
-    }
+      default: "email",
+    },
   },
-  { toJSON: { virtuals: true } }
+  { toJSON: { virtuals: true } },
 );
 
 usersSchema.virtual("name").get(function () {

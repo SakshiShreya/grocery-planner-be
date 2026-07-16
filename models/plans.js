@@ -16,10 +16,6 @@ const plansSchema = new mongoose.Schema(
       ref: "Users",
       required: [true, "Plan should have an updater"]
     },
-    isActive: {
-      type: Boolean,
-      default: false
-    },
     isPrivate: {
       type: Boolean,
       default: false

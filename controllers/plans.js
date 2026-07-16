@@ -1,14 +1,14 @@
 import Plans from "../models/plans.js";
+import Users from "../models/users.js";
 
 export async function getAllPlans(req, res, next) {
   try {
     const { page = 1, limit = 10, q = "" } = req.query;
     const filter = { name: { $regex: q, $options: "i" } };
-    const findPromise = Plans.find(
-      filter,
-      {},
-      { skip: limit * (page - 1), limit },
-    ).populate("updatedBy", "name fName lName");
+    const findPromise = Plans.find(filter, {}, { skip: limit * (page - 1), limit }).populate(
+      "updatedBy",
+      "name fName lName",
+    );
     const countPromise = Plans.countDocuments(filter);
     const [plans, count] = await Promise.all([findPromise, countPromise]);
     res.json({ data: plans, count });
@@ -75,8 +75,122 @@ export async function deletePlan(req, res, next) {
     const { id } = req.params;
 
     await Plans.findByIdAndDelete(id);
+    await Users.updateMany(
+      { "scheduledPlans.plan": id },
+      { $pull: { scheduledPlans: { plan: id } } },
+    );
 
     res.status(204).json();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function startPlan(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { range, forceReplace } = req.body;
+    const { user } = req;
+
+    if (!range?.start || !range?.end) {
+      throw { statusCode: 400, message: "range.start and range.end are required" };
+    }
+
+    const { start, end } = range;
+    const startDate = new Date(start);
+    const startTime = startDate.getTime();
+    const endDate = new Date(end);
+    const endTime = endDate.getTime();
+
+    if (Number.isNaN(startTime) || Number.isNaN(endTime)) {
+      throw { statusCode: 400, message: "Invalid start or end dates" };
+    }
+
+    if (startTime >= endTime) {
+      throw { statusCode: 400, message: "Start date must come before the end date" };
+    }
+
+    if (endTime <= new Date().getTime()) {
+      throw { statusCode: 400, message: "Plan's end date must be after today" };
+    }
+
+    const plan = await Plans.findById(id).select("_id name isPrivate createdBy");
+    if (!plan) {
+      throw { statusCode: 404, message: "Plan not found" };
+    }
+
+    if (plan.isPrivate && plan.createdBy.toString() !== user._id.toString()) {
+      throw { statusCode: 403, message: "You don't have permission to start this plan" };
+    }
+
+    const dbUser = await Users.findById(user._id);
+    const now = new Date();
+    const activePlan = findActiveScheduledPlan(dbUser.scheduledPlans, now);
+    const newPlanIsActive = isActiveScheduledPlan({ startedAt: startDate, endsAt: endDate }, now);
+
+    if (activePlan && newPlanIsActive && !forceReplace) {
+      throw { statusCode: 409, message: "You already have an active plan" };
+    }
+
+    if (activePlan && newPlanIsActive && forceReplace) {
+      await Users.findByIdAndUpdate(user._id, {
+        $pull: {
+          scheduledPlans: {
+            startedAt: { $lte: now },
+            endsAt: { $gt: now },
+          },
+        },
+      });
+    }
+
+    await Users.findByIdAndUpdate(
+      user._id,
+      {
+        $push: {
+          scheduledPlans: {
+            plan: plan._id,
+            startedAt: startDate,
+            endsAt: endDate,
+          },
+        },
+      },
+      { runValidators: true },
+    );
+
+    res.json({ message: "Plan has been started", plan: { _id: plan._id, name: plan.name } });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function stopPlan(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { user } = req;
+
+    const plan = await Plans.findById(id).select("_id name isPrivate createdBy");
+    if (!plan) {
+      throw { statusCode: 404, message: "Plan not found" };
+    }
+
+    const dbUser = await Users.findById(user._id);
+    const scheduledEntry = findScheduledPlanForPlanId(dbUser.scheduledPlans, plan._id);
+
+    if (!scheduledEntry) {
+      throw { statusCode: 400, message: "You don't have this plan scheduled" };
+    }
+
+    await Users.findByIdAndUpdate(user._id, {
+      $pull: {
+        scheduledPlans: { _id: scheduledEntry._id },
+      },
+    });
+
+    const message = isActiveScheduledPlan(scheduledEntry)
+      ? "Plan has been stopped"
+      : "Plan has been unscheduled";
+
+    res.json({ message, plan: { _id: plan._id, name: plan.name } });
   } catch (error) {
     next(error);
   }
@@ -131,4 +245,14 @@ export async function deleteMeal(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+export function isActiveScheduledPlan(entry, now = new Date()) {
+  return entry.startedAt <= now && entry.endsAt > now;
+}
+
+function findScheduledPlanForPlanId(scheduledPlans, planId, now = new Date()) {
+  return scheduledPlans
+    ?.filter((entry) => entry.plan.toString() === planId.toString())
+    .find((entry) => entry.endsAt > now);
 }

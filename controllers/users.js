@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import Users from "../models/users.js";
+import { isActiveScheduledPlan } from "./plans.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -86,7 +87,13 @@ export async function signupByEmail(req, res, next) {
         { new: true },
       );
     } else {
-      user = await Users.create({ email, password: hashedPassword, fName: firstName, lName: lastName, authSource: "email" });
+      user = await Users.create({
+        email,
+        password: hashedPassword,
+        fName: firstName,
+        lName: lastName,
+        authSource: "email",
+      });
     }
 
     sendUserLoginDetails(user, res);
@@ -126,18 +133,34 @@ export async function loginByEmail(req, res, next) {
 }
 
 export async function whoami(req, res, next) {
-  let { user } = req;
+  try {
+    const user = await Users.findById(req.user._id).populate("scheduledPlans.plan", "name");
 
-  user = {
-    _id: user._id,
-    authSource: user.authSource,
-    email: user.email,
-    fName: user.fName,
-    lName: user.lName,
-    name: user.name,
-    picture: user.picture
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const scheduledPlans = user.scheduledPlans
+      .filter((entry) => entry.plan)
+      .map((entry) => formatScheduledPlan(entry));
+    const activePlan = findActiveScheduledPlan(user.scheduledPlans);
+
+    const userData = {
+      _id: user._id,
+      authSource: user.authSource,
+      email: user.email,
+      fName: user.fName,
+      lName: user.lName,
+      name: user.name,
+      picture: user.picture,
+      scheduledPlans,
+      currentPlan: activePlan?.plan ? formatScheduledPlan(activePlan) : null,
+    };
+
+    res.status(200).json({ data: userData });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({ data: user });
 }
 
 export async function changePassword(req, res, next) {
@@ -200,4 +223,16 @@ export async function editUserDetails(req, res, next) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
   }
+}
+
+function findActiveScheduledPlan(scheduledPlans, now = new Date()) {
+  return scheduledPlans?.find((entry) => isActiveScheduledPlan(entry, now));
+}
+
+function formatScheduledPlan(entry) {
+  return {
+    plan: entry.plan,
+    startedAt: entry.startedAt,
+    endsAt: entry.endsAt,
+  };
 }
