@@ -61,6 +61,10 @@ export async function deletePlan(req, res, next) {
     const { id } = req.params;
 
     await Plans.findByIdAndDelete(id);
+    await Users.updateMany(
+      { "scheduledPlans.plan": id },
+      { $pull: { scheduledPlans: { plan: id } } },
+    );
 
     res.status(204).json();
   } catch (error) {
@@ -71,11 +75,14 @@ export async function deletePlan(req, res, next) {
 export async function startPlan(req, res, next) {
   try {
     const { id } = req.params;
-    const {
-      range: { start, end },
-    } = req.body;
+    const { range, forceReplace } = req.body;
     const { user } = req;
 
+    if (!range?.start || !range?.end) {
+      throw { statusCode: 400, message: "range.start and range.end are required" };
+    }
+
+    const { start, end } = range;
     const startDate = new Date(start);
     const startTime = startDate.getTime();
     const endDate = new Date(end);
@@ -102,16 +109,38 @@ export async function startPlan(req, res, next) {
       throw { statusCode: 403, message: "You don't have permission to start this plan" };
     }
 
+    const dbUser = await Users.findById(user._id);
+    const now = new Date();
+    const activePlan = findActiveScheduledPlan(dbUser.scheduledPlans, now);
+    const newPlanIsActive = isActiveScheduledPlan({ startedAt: startDate, endsAt: endDate }, now);
+
+    if (activePlan && newPlanIsActive && !forceReplace) {
+      throw { statusCode: 409, message: "You already have an active plan" };
+    }
+
+    if (activePlan && newPlanIsActive && forceReplace) {
+      await Users.findByIdAndUpdate(user._id, {
+        $pull: {
+          scheduledPlans: {
+            startedAt: { $lte: now },
+            endsAt: { $gt: now },
+          },
+        },
+      });
+    }
+
     await Users.findByIdAndUpdate(
       user._id,
       {
-        currentPlan: {
-          plan: plan._id,
-          startedAt: startDate,
-          endsAt: endDate,
+        $push: {
+          scheduledPlans: {
+            plan: plan._id,
+            startedAt: startDate,
+            endsAt: endDate,
+          },
         },
       },
-      { new: true, runValidators: true },
+      { runValidators: true },
     );
 
     res.json({ message: "Plan has been started", plan: { _id: plan._id, name: plan.name } });
@@ -130,21 +159,24 @@ export async function stopPlan(req, res, next) {
       throw { statusCode: 404, message: "Plan not found" };
     }
 
-    if (!user.currentPlan) {
-      throw { statusCode: 400, message: "You don't have an active plan" };
-    }
+    const dbUser = await Users.findById(user._id);
+    const scheduledEntry = findScheduledPlanForPlanId(dbUser.scheduledPlans, plan._id);
 
-    if (user.currentPlan.plan.toString() !== plan._id.toString()) {
-      throw { statusCode: 400, message: "You don't have that plan started" };
+    if (!scheduledEntry) {
+      throw { statusCode: 400, message: "You don't have this plan scheduled" };
     }
 
     await Users.findByIdAndUpdate(user._id, {
-      $unset: {
-        currentPlan: true,
+      $pull: {
+        scheduledPlans: { _id: scheduledEntry._id },
       },
     });
 
-    res.json({ message: "Plan has been stopped", plan: { _id: plan._id, name: plan.name } });
+    const message = isActiveScheduledPlan(scheduledEntry)
+      ? "Plan has been stopped"
+      : "Plan has been unscheduled";
+
+    res.json({ message, plan: { _id: plan._id, name: plan.name } });
   } catch (error) {
     next(error);
   }
@@ -199,4 +231,14 @@ export async function deleteMeal(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+export function isActiveScheduledPlan(entry, now = new Date()) {
+  return entry.startedAt <= now && entry.endsAt > now;
+}
+
+function findScheduledPlanForPlanId(scheduledPlans, planId, now = new Date()) {
+  return scheduledPlans
+    ?.filter((entry) => entry.plan.toString() === planId.toString())
+    .find((entry) => entry.endsAt > now);
 }

@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import Users from "../models/users.js";
+import { isActiveScheduledPlan } from "./plans.js";
 
 dotenv.config({ path: "./config.env" });
 
@@ -133,7 +134,16 @@ export async function loginByEmail(req, res, next) {
 
 export async function whoami(req, res, next) {
   try {
-    const user = await Users.findById(req.user._id).populate("currentPlan.plan", "name");
+    const user = await Users.findById(req.user._id).populate("scheduledPlans.plan", "name");
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const scheduledPlans = user.scheduledPlans
+      .filter((entry) => entry.plan)
+      .map((entry) => formatScheduledPlan(entry));
+    const activePlan = findActiveScheduledPlan(user.scheduledPlans);
 
     const userData = {
       _id: user._id,
@@ -143,14 +153,8 @@ export async function whoami(req, res, next) {
       lName: user.lName,
       name: user.name,
       picture: user.picture,
-      currentPlan: user.currentPlan?.plan
-        ? {
-            plan: user.currentPlan.plan,
-            weeks: user.currentPlan.weeks,
-            startedAt: user.currentPlan.startedAt,
-            endsAt: user.currentPlan.endsAt,
-          }
-        : null,
+      scheduledPlans,
+      currentPlan: activePlan?.plan ? formatScheduledPlan(activePlan) : null,
     };
 
     res.status(200).json({ data: userData });
@@ -219,4 +223,16 @@ export async function editUserDetails(req, res, next) {
     const error = { statusCode: e.statusCode || 400, message: e.message || e };
     next(error);
   }
+}
+
+function findActiveScheduledPlan(scheduledPlans, now = new Date()) {
+  return scheduledPlans?.find((entry) => isActiveScheduledPlan(entry, now));
+}
+
+function formatScheduledPlan(entry) {
+  return {
+    plan: entry.plan,
+    startedAt: entry.startedAt,
+    endsAt: entry.endsAt,
+  };
 }

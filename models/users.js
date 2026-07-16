@@ -1,5 +1,21 @@
 import mongoose from "mongoose";
 
+const scheduledPlanSchema = new mongoose.Schema({
+  plan: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Plans",
+    required: true,
+  },
+  startedAt: {
+    type: Date,
+    required: true,
+  },
+  endsAt: {
+    type: Date,
+    required: true,
+  },
+});
+
 const usersSchema = new mongoose.Schema(
   {
     email: {
@@ -14,26 +30,9 @@ const usersSchema = new mongoose.Schema(
     lName: String,
     password: String,
     picture: String,
-    currentPlan: {
-      plan: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Plans",
-        required: function () {
-          return this.currentPlan && (this.currentPlan.startedAt || this.currentPlan.endsAt);
-        },
-      },
-      startedAt: {
-        type: Date,
-        required: function () {
-          return this.currentPlan && this.currentPlan.plan;
-        },
-      },
-      endsAt: {
-        type: Date,
-        required: function () {
-          return this.currentPlan && this.currentPlan.plan;
-        },
-      },
+    scheduledPlans: {
+      type: [scheduledPlanSchema],
+      default: [],
     },
     authSource: {
       type: String,
